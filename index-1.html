@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="ar" >
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>كشف التوتر بالصوت - مشروع تخرج 2025</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cairo&display=swap');
+  body {
+    font-family: 'Cairo', sans-serif;
+    background: linear-gradient(135deg, #0d47a1, #42a5f5);
+    color: white;
+    direction: rtl;
+    text-align: center;
+    min-height: 100vh;
+    margin: 0; padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: background 0.6s ease;
+  }
+  #container {
+    max-width: 520px;
+    width: 90%;
+    margin-top: 40px;
+  }
+  section {
+    display: none;
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    color: #003366;
+    position: relative;
+    background: transparent;
+  }
+  section.active {
+    display: block;
+  }
+  h1 {
+    font-size: 3rem;
+    color: white;
+    margin-bottom: 20px;
+    text-shadow: 0 0 12px rgba(0,0,0,0.7);
+  }
+  p {
+    font-size: 1.6rem;
+    color: white;
+    margin-bottom: 40px;
+    text-shadow: 0 0 10px rgba(0,0,0,0.6);
+  }
+  button {
+    padding: 15px 60px;
+    font-size: 1.4rem;
+    border-radius: 40px;
+    cursor: pointer;
+    background: #2196f3;
+    color: white;
+    border: none;
+    box-shadow: 0 6px 15px #42a5f5;
+    margin-bottom: 10px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  button:hover {
+    transform: scale(1.1);
+    box-shadow: 0 12px 35px #64b5f6;
+  }
+  button:active {
+    transform: scale(0.95);
+    box-shadow: 0 4px 10px #2196f3;
+  }
+  .nav-link {
+    color: #f5ce27;
+    font-weight: bold;
+    cursor: pointer;
+    text-decoration: underline;
+    margin-top: 10px;
+    display: inline-block;
+  }
+  /* شخصية بنت */
+  .character-container {
+    width: 160px;
+    height: 160px;
+    margin: 25px auto 35px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #64b5f6, #2196f3);
+    box-shadow: 0 0 50px rgba(33, 150, 243, 0.9);
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .character-face {
+    width: 120px; height: 120px;
+    border-radius: 50%;
+    background: white;
+    box-shadow: inset 0 0 15px #90caf9;
+    position: relative;
+  }
+  .eye {
+    width: 22px; height: 22px;
+    background: #003366;
+    border-radius: 50%;
+    position: absolute;
+    top: 40px;
+    transition: background 0.4s ease;
+  }
+  .eye.left {
+    left: 30px;
+    animation: eye-move 6s ease-in-out infinite;
+  }
+  .eye.right {
+    right: 30px;
+    animation: eye-move 6s ease-in-out infinite 3s;
+  }
+  @keyframes eye-move {
+    0%, 100% { transform: translateX(0); }
+    50% { transform: translateX(4px); }
+  }
+  .mouth {
+    width: 60px; height: 30px;
+    border-bottom: 6px solid #003366;
+    border-radius: 0 0 40px 40px;
+    position: absolute;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%);
+    transition: border-color 0.4s ease, transform 0.3s ease;
+  }
+  .mouth.smile {
+    border-bottom-color: #4caf50;
+    transform: translateX(-50%) rotate(5deg);
+  }
+  .mouth.neutral {
+    border-bottom-color: #f5ce27;
+    transform: translateX(-50%);
+  }
+  .mouth.frown {
+    border-bottom-color: #f44336;
+    transform: translateX(-50%) rotate(-10deg);
+  }
+  .mouth.very-frown {
+    border-bottom-color: #b71c1c;
+    transform: translateX(-50%) rotate(-20deg);
+  }
+  #visualizer {
+    width: 100%;
+    height: 150px;
+    background: #90caf9;
+    border-radius: 20px;
+    box-shadow: inset 0 0 25px #64b5f6;
+    margin-bottom: 15px;
+  }
+  #stress-level-text {
+    font-weight: 700;
+    font-size: 22px;
+    color: #f5ce27;
+    text-shadow: 0 0 12px #f5ce27;
+    margin-bottom: 20px;
+  }
+  #countdown {
+    font-size: 18px;
+    margin-bottom: 20px;
+    color: #004080;
+  }
+  #stress-percent-text {
+    font-size: 22px;
+    font-weight: 700;
+    color: #003366;
+    margin-bottom: 15px;
+  }
+  #result-text {
+    font-size: 22px;
+    margin-bottom: 15px;
+    font-weight: 700;
+    color: #003366;
+  }
+  #advice-text {
+    font-size: 18px;
+    margin-bottom: 25px;
+    color: #004080;
+  }
+  #share-btn {
+    background: #003366;
+    color: #f5ce27;
+    box-shadow: 0 8px 20px #f5ce27;
+  }
+  #share-btn:hover {
+    background: #002244;
+    box-shadow: 0 10px 25px #f5ce27;
+  }
+  #retry-btn {
+    background: #f5ce27;
+    color: #003366;
+  }
+  #lang-switch {
+    position: fixed;
+    top: 12px;
+    left: 12px;
+    background: #f5ce27;
+    color: #003366;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 6px 12px rgba(245,206,39,0.9);
+    z-index: 10;
+    user-select: none;
+    transition: background 0.3s ease;
+  }
+  #lang-switch:hover {
+    background: #fff176;
+  }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/meyda@5.4.0/dist/web/meyda.min.js"></script>
+</head>
+<body>
+
+<button id="lang-switch" title="تبديل اللغة">English</button>
+
+<div id="container">
+
+  <!-- صفحة 1: مقدمة أساسية -->
+  <section id="page1" class="active">
+    <h1 data-ar="مشروع كشف التوتر بالصوت" data-en="Voice Stress Detection Project">مشروع كشف التوتر بالصوت</h1>
+    <p data-ar="دفعة 2025 — تحدي ذكي ينتظرك!" data-en="Batch 2025 — A smart challenge awaits you!">دفعة 2025 — تحدي ذكي ينتظرك!</p>
+    <button id="start-btn-main" data-ar="ابدأ" data-en="Start">ابدأ</button>
+  </section>
+
+  <!-- صفحة 2: مقدمة اللعبة مع شخصية تفاعلية -->
+  <section id="page2">
+    <h1 data-ar="وش يقول صوتك؟" data-en="What Does Your Voice Say?">وش يقول صوتك؟</h1>
+    <div class="character-container" aria-label="شخصية ترحيبية">
+      <div class="character-face">
+        <div class="eye left"></div>
+        <div class="eye right"></div>
+        <div class="mouth neutral"></div>
+      </div>
+    </div>
+    <p data-ar="اكتشف أسرار صوتك وحاول تحدى نفسك!" data-en="Discover the secrets of your voice and challenge yourself!">اكتشف أسرار صوتك وحاول تحدى نفسك!</p>
+    <button id="start-btn" data-ar="جرب الآن" data-en="Try Now">جرب الآن</button>
+    <span class="nav-link" id="back-to-intro" data-ar="رجوع للمقدمة" data-en="Back to Intro">رجوع للمقدمة</span>
+  </section>
+
+  <!-- صفحة 3: صفحة الاختبار -->
+  <section id="page3">
+    <h1 data-ar="ابدأ بالحديث لتحليل توترك" data-en="Start Speaking to Analyze Your Stress">ابدأ بالحديث لتحليل توترك</h1>
+    <canvas id="visualizer"></canvas>
+    <p id="stress-level-text"></p>
+    <p id="countdown"></p>
+  </section>
+
+  <!-- صفحة 4: صفحة النتائج -->
+  <section id="page4">
+    <div class="character-container" aria-label="نتيجة التوتر">
+      <div class="character-face">
+        <div class="eye left"></div>
+        <div class="eye right"></div>
+        <div class="mouth"></div>
+      </div>
+    </div>
+    <p id="stress-percent-text"></p>
+    <div id="result-text"></div>
+    <p id="advice-text"></p>
+    <button id="retry-btn" data-ar="أعد المحاولة" data-en="Try Again">أعد المحاولة</button>
+    <button id="back-to-main" data-ar="رجوع للمقدمة الأساسية" data-en="Back to Main Intro">رجوع للمقدمة الأساسية</button>
+  </section>
+
+</div>
+
+<!-- أصوات تفاعلية جميلة (مشفرة Base64) -->
+<audio id="beep-sound" src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YQAAAAA="></audio>
+<audio id="result-sound" src="data:audio/wav;base64,UklGRmIAAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YQAAAAA="></audio>
+<audio id="button-sound" src="data:audio/wav;base64,UklGRkgAAABXQVZFZm10IBAAAAABAAEAIlYAAJYAAACABAAZGF0YQEAAAA="></audio>
+
+<script>
+  const langSwitch = document.getElementById('lang-switch');
+  let currentLang = 'ar';
+
+  function updateTextContent() {
+    document.querySelectorAll('[data-ar]').forEach(el => {
+      el.textContent = el.getAttribute(`data-${currentLang}`);
+    });
+  }
+
+  function switchLanguage() {
+    currentLang = currentLang === 'ar' ? 'en' : 'ar';
+    updateTextContent();
+    langSwitch.textContent = currentLang === 'ar' ? 'English' : 'عربي';
+  }
+  langSwitch.addEventListener('click', switchLanguage);
+  updateTextContent();
+
+  const startBtnMain = document.getElementById('start-btn-main');
+  const startBtn = document.getElementById('start-btn');
+  const retryBtn = document.getElementById('retry-btn');
+  const backToIntro = document.getElementById('back-to-intro');
+  const backToMain = document.getElementById('back-to-main');
+
+  const introSection = document.getElementById('page1');
+  const gameIntroSection = document.getElementById('page2');
+  const testSection = document.getElementById('page3');
+  const resultSection = document.getElementById('page4');
+  const visualizer = document.getElementById('visualizer');
+  const stressLevelText = document.getElementById('stress-level-text');
+  const countdown = document.getElementById('countdown');
+  const stressPercentText = document.getElementById('stress-percent-text');
+  const resultText = document.getElementById('result-text');
+  const adviceText = document.getElementById('advice-text');
+  const mouth = resultSection.querySelector('.mouth');
+  const eyes = resultSection.querySelectorAll('.eye');
+
+  let audioContext, analyser, microphone, dataArray, animationId;
+  let countdownTimer;
+  let pitchValues = [];
+  let rmsValues = [];
+  let meydaAnalyzer;
+
+  // الأصوات التفاعلية
+  const beepSound = document.getElementById('beep-sound');
+  const resultSound = document.getElementById('result-sound');
+  const buttonSound = document.getElementById('button-sound');
+
+  function playBeep() {
+    beepSound.currentTime = 0;
+    beepSound.play();
+  }
+  function playResultSound() {
+    resultSound.currentTime = 0;
+    resultSound.play();
+  }
+  function playButtonSound() {
+    buttonSound.currentTime = 0;
+    buttonSound.play();
+  }
+
+  function updateCharacter(level) {
+    if(level === 'low'){
+      mouth.className = 'mouth smile';
+      eyes.forEach(e => e.style.background = '#003366');
+      resultText.textContent = currentLang === 'ar' ? 'توترك منخفض جدًا، استمر بالهدوء والاسترخاء.' : 'Your stress is very low, stay calm and relaxed.';
+      adviceText.textContent = currentLang === 'ar' ? 'نصيحة: استمر في التنفس بعمق واستمتع بيومك.' : 'Advice: Keep breathing deeply and enjoy your day.';
+      document.body.style.background = 'linear-gradient(135deg, #a8e063, #56ab2f)';
+    } else if(level === 'medium'){
+      mouth.className = 'mouth neutral';
+      eyes.forEach(e => e.style.background = '#663c00');
+      resultText.textContent = currentLang === 'ar' ? 'توترك متوسط، حاول تسترخي أكثر.' : 'Your stress is moderate, try to relax more.';
+      adviceText.textContent = currentLang === 'ar' ? 'نصيحة: جرب تمارين الاسترخاء والتنفس العميق.' : 'Advice: Try relaxation and deep breathing exercises.';
+      document.body.style.background = 'linear-gradient(135deg, #fceabb, #f8b500)';
+    } else if(level === 'high'){
+      mouth.className = 'mouth frown';
+      eyes.forEach(e => e.style.background = '#b71c1c');
+      resultText.textContent = currentLang === 'ar' ? 'توترك عالي، خذ نفس عميق واهتم بنفسك.' : 'Your stress is high, take a deep breath and take care of yourself.';
+      adviceText.textContent = currentLang === 'ar' ? 'نصيحة: خذ استراحة قصيرة وامشِ قليلاً.' : 'Advice: Take a short break and walk a little.';
+      document.body.style.background = 'linear-gradient(135deg, #f85032, #e73827)';
+    } else if(level === 'very_high'){
+      mouth.className = 'mouth very-frown';
+      eyes.forEach(e => e.style.background = '#7f0000');
+      resultText.textContent = currentLang === 'ar' ? 'توترك مرتفع جدًا، ننصحك بأخذ استراحة والتحدث مع أحد.' : 'Your stress is very high, we recommend taking a break and talking to someone.';
+      adviceText.textContent = currentLang === 'ar' ? 'نصيحة: حاول استشارة شخص تثق به.' : 'Advice: Try to consult someone you trust.';
+      document.body.style.background = 'linear-gradient(135deg, #541416, #b31217)';
+    }
+  }
+
+  function drawVisualizer() {
+    visualizer.width = visualizer.clientWidth;
+    visualizer.height = visualizer.clientHeight;
+    const ctx = visualizer.getContext('2d');
+
+    function draw() {
+      animationId = requestAnimationFrame(draw);
+      analyser.getByteFrequencyData(dataArray);
+      ctx.clearRect(0, 0, visualizer.width, visualizer.height);
+
+      let barWidth = (visualizer.width / dataArray.length) * 2.5;
+      let xPos = 0;
+
+      for (let i = 0; i < dataArray.length; i++) {
+        let barHeight = dataArray[i];
+        let r, g, b;
+
+        // تدرج اللون: منخفض صوت (أحمر)، وسط (أصفر)، عالي صوت (أخضر)
+        if (barHeight < 80) {
+          // صوت منخفض -> أحمر
+          r = 244; g = 67; b = 54;
+        } else if (barHeight < 160) {
+          // صوت متوسط -> أصفر
+          r = 245; g = 206; b = 39;
+        } else {
+          // صوت عالي -> أخضر
+          r = 76; g = 175; b = 80;
+        }
+
+        ctx.fillStyle = `rgb(${r},${g},${b})`;
+        ctx.fillRect(xPos, visualizer.height - barHeight, barWidth, barHeight);
+        xPos += barWidth + 1;
+      }
+    }
+    draw();
+  }
+
+  function goToPage(num) {
+    [introSection, gameIntroSection, testSection, resultSection].forEach(sec => sec.classList.remove('active'));
+    if(num === 1) introSection.classList.add('active');
+    else if(num === 2) gameIntroSection.classList.add('active');
+    else if(num === 3) testSection.classList.add('active');
+    else if(num === 4) resultSection.classList.add('active');
+  }
+
+  function average(arr) {
+    if (arr.length === 0) return 0;
+    return arr.reduce((a,b) => a + b, 0) / arr.length;
+  }
+
+  let currentLevel = 'low';
+
+  function startAnalysis() {
+    playButtonSound();
+    goToPage(3);
+    stressLevelText.textContent = '';
+    countdown.textContent = '';
+    playBeep();
+
+    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+    navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+      microphone = audioContext.createMediaStreamSource(stream);
+      analyser = audioContext.createAnalyser();
+      microphone.connect(analyser);
+      analyser.fftSize = 512;
+      dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+      pitchValues = [];
+      rmsValues = [];
+
+      meydaAnalyzer = Meyda.createMeydaAnalyzer({
+        audioContext: audioContext,
+        source: microphone,
+        bufferSize: 512,
+        featureExtractors: ['rms', 'pitch'],
+        callback: features => {
+          if (features.pitch) pitchValues.push(features.pitch);
+          rmsValues.push(features.rms);
+        }
+      });
+      meydaAnalyzer.start();
+
+      drawVisualizer();
+
+      let timeLeft = 3.5;
+      countdown.textContent = (currentLang === 'ar' ? 'الوقت المتبقي: ' : 'Time left: ') + Math.ceil(timeLeft) + 's';
+
+      countdownTimer = setInterval(() => {
+        timeLeft -= 0.5;
+        if (timeLeft <= 0) {
+          clearInterval(countdownTimer);
+          meydaAnalyzer.stop();
+          stopAnalysis(stream);
+        } else {
+          countdown.textContent = (currentLang === 'ar' ? 'الوقت المتبقي: ' : 'Time left: ') + Math.ceil(timeLeft) + 's';
+        }
+      }, 500);
+    }).catch(() => {
+      alert(currentLang === 'ar' ? 'لم نتمكن من الوصول إلى الميكروفون.' : 'Unable to access microphone.');
+      goToPage(1);
+    });
+  }
+
+  function stopAnalysis(stream) {
+    audioContext.close();
+    stream.getTracks().forEach(track => track.stop());
+
+    goToPage(4);
+    playResultSound();
+
+    const avgPitch = average(pitchValues);
+    const avgRMS = average(rmsValues);
+
+    // حساب نسبة التوتر (100% يعني توتر عالي جداً، 0% توتر منخفض جداً)
+    let stressPercent = Math.min(100, Math.max(0, ((0.15 - avgRMS) / (0.15 - 0.01)) * 100));
+    stressPercent = Math.round(stressPercent);
+
+    // تحديد مستوى التوتر بناءً على النسبة
+    if (stressPercent > 75) currentLevel = 'very_high';
+    else if (stressPercent > 40) currentLevel = 'medium';
+    else currentLevel = 'low';
+
+    // عرض النسبة في صفحة النتائج
+    let stressMsg = currentLang === 'ar' ? 
+      `مستوى التوتر: ${stressPercent}%` :
+      `Stress Level: ${stressPercent}%`;
+    stressPercentText.textContent = stressMsg;
+
+    updateCharacter(currentLevel);
+  }
+
+  startBtnMain.addEventListener('click', () => {
+    playButtonSound();
+    goToPage(2);
+  });
+  startBtn.addEventListener('click', startAnalysis);
+  retryBtn.addEventListener('click', () => {
+    playButtonSound();
+    goToPage(2);
+    stressLevelText.textContent = '';
+    stressPercentText.textContent = '';
+    resultText.textContent = '';
+    adviceText.textContent = '';
+  });
+  backToIntro.addEventListener('click', () => {
+    playButtonSound();
+    goToPage(1);
+  });
+  backToMain.addEventListener('click', () => {
+    playButtonSound();
+    goToPage(1);
+  });
+</script>
+
+</body>
+</html>
